@@ -1,11 +1,14 @@
-SQL:
-Create table osmLocation:
+--SQL
 
+-- Setup:
+CREATE EXTENSION postgis;
+
+--Create table osmLocation:
 CREATE TABLE osmlocation (
 session_id integer,
 seconds integer,
 millis integer,
-geom geometry(Point, 4326),  # Este numero 4326 é o srid do sistema de referencia que os dados tem
+geom geometry(Point, 4326),  -- Este numero 4326 é o srid do sistema de referencia que os dados tem
 lat double precision,
 lon double precision,
 err double precision,
@@ -13,7 +16,7 @@ way_id integer,
 node_src bigint,
 node_dst bigint
 );
-Importar os dados do "OSMLocation 10000Registries 2018_04_04.csv"
+--Importar os dados do "OSMLocation 10000Registries 2018_04_04.csv"
 
 
 CREATE TABLE session (
@@ -35,7 +38,7 @@ CREATE TABLE session (
 	software varchar(255),
 	instance_ varchar(255)
 );
-Importar dados do session.csv
+--Importar dados do session.csv
 
 CREATE TABLE gslocation (
 	session_id integer,
@@ -53,7 +56,7 @@ CREATE TABLE gslocation (
 	climb varchar(255),
 	acc double precision
 );
-Importar dados do gslocation.csv
+--Importar dados do gslocation.csv
 
 CREATE TABLE processed_session (
 	session_id integer,
@@ -76,4 +79,4 @@ CREATE TABLE processed_session (
 	count_location integer,
 	count_gsactivity integer
 );
-Importar dados do processed_sessions.csv
+--Importar dados do processed_sessions.csv
