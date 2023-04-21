@@ -3,21 +3,6 @@
 -- Setup:
 CREATE EXTENSION postgis;
 
---Create table osmLocation:
-CREATE TABLE osmlocation (
-session_id integer,
-seconds integer,
-millis integer,
-geom geometry(Point, 4326),  -- Este numero 4326 é o srid do sistema de referencia que os dados tem
-lat double precision,
-lon double precision,
-err double precision,
-way_id integer,
-node_src bigint,
-node_dst bigint
-);
---Importar os dados do "OSMLocation 10000Registries 2018_04_04.csv"
-
 
 CREATE TABLE session (
 	session_id integer,

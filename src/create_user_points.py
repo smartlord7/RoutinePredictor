@@ -2,6 +2,8 @@
 import pandas as pd
 import psycopg2
 
+from src.db_setup import db_setup
+
 """
 Este foi o ultimo que tive a modificar, basicamente é usar outras tabelas para ir buscar o ponto inicial e final das sessoes
 Uso o user 464 pq é o que tem mais sessoes
@@ -10,19 +12,7 @@ Isto nao está acabado!!!!!!!!!!
 
 
 # Database connection configurations
-POSTGRES_ADDRESS = 'localhost'
-POSTGRES_PORT = '5432'
-POSTGRES_USERNAME = 'leopoldo'
-POSTGRES_PASSWORD = '1234'
-POSTGRES_DBNAME = 'suscity'
-
-db_uri = f'postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_ADDRESS}:{POSTGRES_PORT}/{POSTGRES_DBNAME}'
-
-conn = psycopg2.connect(database=POSTGRES_DBNAME, user=POSTGRES_USERNAME,
-                        password=POSTGRES_PASSWORD, host=POSTGRES_ADDRESS,
-                        port=POSTGRES_PORT)
-
-conn.autocommit = True
+db_config, db_uri, conn = db_setup()
 
 session_file_name = 'user_sessions_number.txt'
 

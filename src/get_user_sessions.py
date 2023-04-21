@@ -1,33 +1,24 @@
-# import sqlalchemy as db
-import pandas as pd
-import psycopg2
 import os
+import pandas as pd
+from src.db_setup import db_setup
+
 
 """
 Used to get all the sessions from all users, and store them in a file.
 Only adds sessions that we have data for!
 """
 
-# Database connection configurations
-POSTGRES_ADDRESS = 'localhost'
-POSTGRES_PORT = '5432'
-POSTGRES_USERNAME = 'leopoldo'
-POSTGRES_PASSWORD = '1234'
-POSTGRES_DBNAME = 'suscity'
+PATH_DATA = '../data/'
+EXTENSION_TEXT = '.txt'
+PATH_USER_SESSIONS = PATH_DATA + 'user_sessions_number' + EXTENSION_TEXT
 
-db_uri = f'postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_ADDRESS}:{POSTGRES_PORT}/{POSTGRES_DBNAME}'
+# Database connection configurations
+db_config, db_uri, conn = db_setup()
 
 session_file_name = 'user_sessions_number.txt'
-
-conn = psycopg2.connect(database=POSTGRES_DBNAME, user=POSTGRES_USERNAME,
-                        password=POSTGRES_PASSWORD, host=POSTGRES_ADDRESS,
-                        port=POSTGRES_PORT)
-
-conn.autocommit = True
 cursor = conn.cursor()
 
 sessions = pd.read_sql_query('SELECT * FROM session', db_uri)
-
 
 # Dict of user:[session list]
 users = sessions['user_id'].unique()  # All user ids
@@ -70,7 +61,6 @@ if not os.path.exists(session_file_name):
                 else:
                     user_session_dict[user].append(session_locations['session_id'].values[0])
 
-
         # Write to file if this user has location for any session
         if user_session_dict.get(user) is not None:
             # Store list in file
@@ -91,8 +81,6 @@ else:
         user_sessions = list(map(int, split[1:]))
         user_session_dict[user] = user_sessions
 
-
-
 session_file.close()
 
 users = user_session_dict
@@ -104,7 +92,6 @@ for user, s in users.items():
 
 # Get user with most amount of sessions
 ordered_users = sorted(users, key=lambda x: len(users.get(x)), reverse=True)[0:5]
-
 
 print('The 5 users with the most sessions are: ')
 for user in ordered_users:
