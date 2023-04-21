@@ -1,4 +1,6 @@
 # import sqlalchemy as db
+import json
+
 import pandas as pd
 import psycopg2
 
@@ -10,11 +12,13 @@ Uso o user 464 pq é o que tem mais sessoes
 Isto nao está acabado!!!!!!!!!!
 """
 
+PATH_DATA = '../data/'
+EXTENSION_TEXT = '.txt'
+PATH_USER_SESSIONS = PATH_DATA + 'user_sessions_number' + EXTENSION_TEXT
+
 
 # Database connection configurations
 db_config, db_uri, conn = db_setup()
-
-session_file_name = 'user_sessions_number.txt'
 
 user_id = 464  # Change this to whatever user
 

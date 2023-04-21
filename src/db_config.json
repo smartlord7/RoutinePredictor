@@ -3,5 +3,5 @@
   "port": "5432",
   "username": "leopoldo",
   "password": "1234",
-  "databse": "suscity"
+  "database": "suscity"
 }
