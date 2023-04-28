@@ -3,3 +3,6 @@ psycopg2
 pandas
 ipykernel
 jupyter
+scikit-learn
+keras
+tensorflow

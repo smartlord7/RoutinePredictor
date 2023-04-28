@@ -15,7 +15,6 @@ PATH_USER_SESSIONS = PATH_DATA + 'user_sessions_number' + EXTENSION_TEXT
 # Database connection configurations
 db_config, db_uri, conn = db_setup()
 
-session_file_name = 'user_sessions_number.txt'
 cursor = conn.cursor()
 
 sessions = pd.read_sql_query('SELECT * FROM session', db_uri)
@@ -24,10 +23,10 @@ sessions = pd.read_sql_query('SELECT * FROM session', db_uri)
 users = sessions['user_id'].unique()  # All user ids
 user_session_dict = {}
 
-if not os.path.exists(session_file_name):
+if not os.path.exists(PATH_USER_SESSIONS):
     # File does not exist, create it
 
-    session_file = open(session_file_name, 'w')
+    session_file = open(PATH_USER_SESSIONS, 'w')
 
     print(f'There are {len(users)} users.')
 
@@ -74,7 +73,7 @@ if not os.path.exists(session_file_name):
 
 else:
     # File exists, read it
-    session_file = open(session_file_name, 'r')
+    session_file = open(PATH_USER_SESSIONS, 'r')
     for line in session_file.readlines():
         split = line.strip().split(',')
         user = int(split[0])
