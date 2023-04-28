@@ -1,10 +1,11 @@
 import pandas as pd
 
-USER_ID = 356
+USER_ID = 353
 PATH_DATA = 'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\data\\user_sequences\\' # Complete path because of QGis Interpreter
 EXTENSION_TEXT = '.txt'
 PATH_USER_DATA = PATH_DATA + f'user_{USER_ID}_sequence' + EXTENSION_TEXT
 
+weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 file = open(PATH_USER_DATA, 'r')
 
 max_sessions = 100
@@ -14,7 +15,7 @@ prev = None
 
 for index, line in enumerate(file.readlines()):
     vals = line.strip().split(',')
-    day = vals[0]
+    day = int(vals[0])
     lat = float(vals[1])
     lon = float(vals[2])
 
@@ -22,7 +23,7 @@ for index, line in enumerate(file.readlines()):
         prev = (day, lat, lon)
         continue
 
-    layer = QgsVectorLayer('LineString?crs=epsg:4326', f'{index} - {day}', 'memory')
+    layer = QgsVectorLayer('LineString?crs=epsg:4326', f'{index} - {weekdays[day]}', 'memory')
     layer.renderer().symbol().setWidth(1.0)
 
     pr = layer.dataProvider()
