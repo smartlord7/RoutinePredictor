@@ -75,9 +75,8 @@ with open(PATH_USER_DATA, 'r') as file:
 lst = np.array(lst)
 
 start = lst[tmp_index - 1, :]
-
 end_true = lst[tmp_index, :]
-#end_pred = utils.predict(asdsada)
+#end_pred = predict()
 
 create_qgis_arrow(start, end_true, 'red', f'Index: {tmp_index} - True Position')
 
