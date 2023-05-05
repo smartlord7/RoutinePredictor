@@ -1,6 +1,10 @@
+import pickle
+import warnings
+
 import numpy as np
 import pandas as pd
 from keras.callbacks import EarlyStopping
+from keras.saving.save import load_model
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
@@ -14,6 +18,9 @@ PATH_DATA = '../data/user_sequences/'
 EXTENSION_TEXT = '.txt'
 PATH_USER_DATA = PATH_DATA + f'user_{USER_ID}_sequence' + EXTENSION_TEXT
 SEQUENCE_LENGTH = 2
+COUNTER = 1
+FRACTION_TEST = 0.2
+FRACTION_VALIDATION = 0.2
 
 
 def build_lstm_model(data_shape, sequence_length, learning_rate, num_layers, num_nodes):
@@ -35,51 +42,51 @@ def build_lstm_model(data_shape, sequence_length, learning_rate, num_layers, num
 
 def train_model(data_shape, sequence_length, train_data, val_data):
     def train_model_(learning_rate, num_layers, num_nodes):
+        global COUNTER
         lstm_model = build_lstm_model(data_shape, sequence_length, learning_rate, int(num_layers), int(num_nodes))
         early_stop = EarlyStopping(monitor='val_loss', patience=3)
-        history = lstm_model.fit(train_data, epochs=30, verbose=1, validation_data=val_data, callbacks=[early_stop])
+        history = lstm_model.fit(train_data, epochs=5, verbose=1, validation_data=val_data, callbacks=[early_stop])
         val_loss = np.min(history.history['val_loss'])
+
+        filename = 'lstm_model_' + str(COUNTER) + '.h5'
+        lstm_model.save(filename)
+        COUNTER += 1
 
         return -val_loss
 
     return train_model_
 
 
-def eval_model(model, test_data, y_test):
-    train_loss = model.history['loss'][-1]
-    val_loss = model.history['val_loss'][-1]
+def eval_model(model, test_data):
+    #train_loss = model.history['loss'][-1]
+    #val_loss = model.history['val_loss'][-1]
+    test_loss = model.evaluate(test_data)
+    #print('Train loss: ', train_loss)
+    #print('Validation loss: ', val_loss)
+    print('Test loss: ', test_loss)
 
-    y_pred = model.predict(test_data)
-    y_pred = np.concatenate(y_pred)  # flatten the predictions
-    y_test = np.concatenate(y_test)  # flatten the true labels
-    mse = np.mean(np.square(y_pred - y_test))
-    mae = np.mean(np.abs(y_pred - y_test))
-    r2 = 1 - np.sum(np.square(y_pred - y_test)) / np.sum(np.square(y_test - np.mean(y_test)))
-
-    print('Train loss: ', train_loss)
-    print('Validation loss: ', val_loss)
-    print('R-squared: ', r2)
-    print('MSE: ', mse)
-    print('MAE: ', mae)
 
 
 def main():
+    warnings.filterwarnings('ignore', category=DeprecationWarning)
+
     data = pd.read_csv(PATH_USER_DATA, header=None)
     data = data.to_numpy()[:, 1:]  # Discard weekday, just for now
     data_shape = data.shape
     print(data.shape)
 
-    X = data[0:-1, :]
+    X = data
+    y = data
     scaler = MinMaxScaler()
     X = scaler.fit_transform(X)
-    y = data[1:, :]
+    y = scaler.fit_transform(y)
 
-    X_dev, X_test, y_dev, y_test = train_test_split(X, y, shuffle=False, stratify=None, test_size=0.2)
-    X_train, X_val, y_train, y_val = train_test_split(X_dev, y_dev, shuffle=False, stratify=None, test_size=0.2)
+    X_dev, X_test, y_dev, y_test = train_test_split(X, y, shuffle=False, stratify=None, test_size=FRACTION_TEST)
+    X_train, X_val, y_train, y_val = train_test_split(X_dev, y_dev, shuffle=False, stratify=None, test_size=FRACTION_VALIDATION)
 
-    train_data = TimeseriesGenerator(X_train, y_train, length=SEQUENCE_LENGTH, batch_size=4) # reduce batch size
-    val_data = TimeseriesGenerator(X_val, y_val, length=SEQUENCE_LENGTH, batch_size=4)
-    test_data = TimeseriesGenerator(X_test, y_test, length=SEQUENCE_LENGTH, batch_size=4)
+    train_data = TimeseriesGenerator(X_train, y_train, length=SEQUENCE_LENGTH, batch_size=8) # reduce batch size
+    val_data = TimeseriesGenerator(X_val, y_val, length=SEQUENCE_LENGTH, batch_size=8)
+    test_data = TimeseriesGenerator(X_test, y_test, length=SEQUENCE_LENGTH, batch_size=8)
 
     pbounds = {'learning_rate': (1e-4, 3e-1),
                'num_layers': (2, 8),
@@ -87,16 +94,17 @@ def main():
 
     opt_callback = train_model(data_shape, SEQUENCE_LENGTH, train_data, val_data)
     lstm_bo = BayesianOptimization(f=opt_callback,  pbounds=pbounds, verbose=2, random_state=42)
-    lstm_bo.maximize(init_points=5, n_iter=20, acq='ei')
+    lstm_bo.maximize(init_points=0, n_iter=1, acq='ei')
+    best_model_index = max(range(len(lstm_bo.res)), key=lambda i: lstm_bo.res[i]['target']) + 1
+    best_model_filename = 'lstm_model_' + str(best_model_index) + '.h5'
+    best_lstm_model = load_model(best_model_filename)
 
+    print('Best LSTM params:')
     best_params = lstm_bo.max['params']
-    best_learning_rate = best_params['learning_rate']
-    best_num_layers = int(best_params['num_layers'])
-    best_num_nodes = int(best_params['num_nodes'])
+    print(best_params)
 
-    best_lstm_model = build_lstm_model(data_shape, SEQUENCE_LENGTH, best_learning_rate, best_num_layers, best_num_nodes)
     best_lstm_model.summary()
-    #eval_model(best_lstm_model, test_data, y_test)
+    eval_model(best_lstm_model, test_data)
 
 
 if __name__ == '__main__':

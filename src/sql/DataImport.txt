@@ -1,0 +1,67 @@
+--SQL
+
+-- Setup:
+CREATE EXTENSION postgis;
+
+
+CREATE TABLE session (
+	session_id integer,
+	user_id integer,
+	daily_user_id integer,
+	start_time integer,
+	start_millis integer,
+	start_elapsed_seconds integer,
+	start_elapsed_millis integer,
+	end_seconds integer,
+	end_millis integer,
+	end_elapsed_seconds integer,
+	end_elapsed_millis integer,
+	timezone integer,
+	version_ integer,
+	uuid varchar(255),
+	hardware varchar(255),
+	software varchar(255),
+	instance_ varchar(255)
+);
+--Importar dados do session.csv
+
+CREATE TABLE gslocation (
+	session_id integer,
+	seconds integer,
+	millis integer,
+	gpstime integer,
+	gpsmillis integer,
+	nsats integer,
+	geom geometry(Point, 4326),
+	lat double precision,
+	lon double precision,
+	alt double precision,
+	track double precision,
+	speed double precision,
+	climb varchar(255),
+	acc double precision
+);
+--Importar dados do gslocation.csv
+
+CREATE TABLE processed_session (
+	session_id integer,
+	daily_user_id integer,
+	seconds_start integer,
+	lat_start double precision,
+	lon_start double precision,
+	seconds_end integer,
+	lat_end double precision,
+	lon_end double precision,
+	distance double precision,
+	count_gps integer,
+	count_gslocation integer,
+	count_accelerometer integer,
+	count_wfm integer,
+	count_obd integer,
+	count_heartmonitor integer,
+	count_events integer,
+	count_responses integer,
+	count_location integer,
+	count_gsactivity integer
+);
+--Importar dados do processed_sessions.csv
