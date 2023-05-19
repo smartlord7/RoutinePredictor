@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from keras.callbacks import EarlyStopping
-from keras.saving.save import load_model
+from keras.models import load_model
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator

@@ -1,11 +1,8 @@
-import os.path
-import pandas as pd
-import numpy as np
-
+import os
 def create_qgis_arrow(start, end, color, layer_name):
     layer = QgsVectorLayer('LineString?crs=epsg:4326', layer_name, 'memory')
     layer.renderer().symbol().setWidth(1.0)
-
+    
     pr = layer.dataProvider()
 
     start_point = QgsPointXY(start[1], start[0])
@@ -43,45 +40,49 @@ def create_qgis_arrow(start, end, color, layer_name):
 
 
 USER_ID = 353
-PATH_DATA = 'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\data\\user_sequences\\' # Complete path because of QGis Interpreter
+PATH_DATA = 'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\data\\user_predictions\\' # Complete path because of QGis Interpreter
 TMP_DATA = 'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\data\\tmp\\'
 EXTENSION_TEXT = '.txt'
-PATH_USER_DATA = PATH_DATA + f'user_{USER_ID}_sequence' + EXTENSION_TEXT
 TMP_USER_DATA = TMP_DATA + f'{USER_ID}' + EXTENSION_TEXT
 
+predict_path = PATH_DATA + f'{USER_ID}_pred.txt'
+true_path = PATH_DATA + f'{USER_ID}_true.txt'
+
+
 # Check if tmp_file does not exist
-# !! TODO
 if not os.path.exists(TMP_USER_DATA):
-    tmp_index = 3
+    tmp_index = 1
 else:
     with open(TMP_USER_DATA, 'r') as tmp_file:
         tmp_index = int(tmp_file.readline().strip())
 
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-prev = None
+with open(true_path, 'r') as file:
+    lines = file.readlines()
 
-lst = []
+    # The start is always equal to the TRUE position
+    start_line = lines[tmp_index - 1]
+    vals = start_line.strip().split(',')
+    start = [float(vals[0]), float(vals[1])]
 
-with open(PATH_USER_DATA, 'r') as file:
-    for index, line in enumerate(file.readlines()):
-        vals = line.strip().split(',')
-        day = int(vals[0])
-        lat = float(vals[1])
-        lon = float(vals[2])
+    true_line = lines[tmp_index]
+    vals = true_line.strip().split(',')
+    end_true = [float(vals[0]), float(vals[1])]
 
-        lst.append([lat, lon])
+    file.close()
 
-lst = np.array(lst)
+with open(predict_path, 'r') as file:
+    lines = file.readlines()
 
-start = lst[tmp_index - 1, :]
-end_true = lst[tmp_index, :]
-#end_pred = predict()
+    pred_line = lines[tmp_index]
+    vals = pred_line.strip().split(',')
+    end_pred = [float(vals[0]), float(vals[1])]
+
+    file.close()
 
 create_qgis_arrow(start, end_true, 'red', f'Index: {tmp_index} - True Position')
-
-
+create_qgis_arrow(start, end_pred, 'blue', f'Index: {tmp_index} - Predicted Position')
 
 with open(TMP_USER_DATA, 'w') as tmp_file:
     tmp_file.write(str(tmp_index + 1))
-
