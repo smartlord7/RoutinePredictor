@@ -1,5 +1,39 @@
+"""
+------------WayAhead: Predicting a person's routine------------
+ University of Coimbra
+ Masters in Intelligent Systems
+ Ubiquitious Systems
+ 1st year, 2nd semester
+ Authors:
+ Alexandre Gameiro Leopoldo, 2019219929, uc2019219929@student.uc.pt
+ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+ Credits to:
+ Carlos Bento
+ Coimbra, 29th May 2023
+ ---------------------------------------------------------------------------
+"""
+
 import os
 def create_qgis_arrow(start, end, color, layer_name):
+    """
+      Creates a QGIS arrow vector layer to display an arrow connecting two points on a map.
+
+      Parameters:
+      -----------
+      start: list
+          The start point coordinates [latitude, longitude].
+      end: list
+          The end point coordinates [latitude, longitude].
+      color: str
+          The color of the arrow.
+      layer_name: str
+          The name of the layer.
+
+      Returns:
+      --------
+      None
+    """
     layer = QgsVectorLayer('LineString?crs=epsg:4326', layer_name, 'memory')
     layer.renderer().symbol().setWidth(1.0)
     

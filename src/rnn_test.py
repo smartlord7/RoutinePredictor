@@ -1,3 +1,19 @@
+"""
+------------WayAhead: Predicting a person's routine------------
+ University of Coimbra
+ Masters in Intelligent Systems
+ Ubiquitious Systems
+ 1st year, 2nd semester
+ Authors:
+ Alexandre Gameiro Leopoldo, 2019219929, uc2019219929@student.uc.pt
+ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+ Credits to:
+ Carlos Bento
+ Coimbra, 29th May 2023
+ ---------------------------------------------------------------------------
+"""
+
 import pickle
 import warnings
 
@@ -24,6 +40,27 @@ FRACTION_VALIDATION = 0.2
 
 
 def build_lstm_model(data_shape, sequence_length, learning_rate, num_layers, num_nodes):
+    """
+       Builds an LSTM model for sequence prediction.
+
+       Parameters:
+       -----------
+       data_shape: tuple
+           A tuple representing the shape of the input data.
+       sequence_length: int
+           The length of the input sequence.
+       learning_rate: float
+           The learning rate for the optimizer.
+       num_layers: int
+           The number of LSTM layers in the model.
+       num_nodes: int
+           The number of nodes in each LSTM layer.
+
+       Returns:
+       --------
+       keras.models.Sequential
+           The constructed LSTM model.
+    """
     lstm_model = Sequential()
     for i in range(num_layers):
         if i == 0:
@@ -41,7 +78,44 @@ def build_lstm_model(data_shape, sequence_length, learning_rate, num_layers, num
 
 
 def train_model(data_shape, sequence_length, train_data, val_data):
+    """
+       Trains an LSTM model using the provided training and validation data.
+
+       Parameters:
+       -----------
+       data_shape: tuple
+           A tuple representing the shape of the input data.
+       sequence_length: int
+           The length of the input sequence.
+       train_data: numpy.ndarray
+           The training data used for model training.
+       val_data: numpy.ndarray
+           The validation data used for model evaluation.
+
+       Returns:
+       --------
+       function
+           A function that trains the LSTM model with different hyperparameters and returns the negative validation loss.
+           The function takes the learning_rate, num_layers, and num_nodes as inputs.
+    """
     def train_model_(learning_rate, num_layers, num_nodes):
+        """
+            Trains the LSTM model with the specified hyperparameters and returns the negative validation loss.
+
+            Parameters:
+            -----------
+            learning_rate: float
+                The learning rate for the optimizer.
+            num_layers: int
+                The number of LSTM layers in the model.
+            num_nodes: int
+                The number of nodes in each LSTM layer.
+
+            Returns:
+            --------
+            float
+                The negative validation loss achieved by the trained model.
+        """
         global COUNTER
         lstm_model = build_lstm_model(data_shape, sequence_length, learning_rate, int(num_layers), int(num_nodes))
         early_stop = EarlyStopping(monitor='val_loss', patience=3)
@@ -58,6 +132,16 @@ def train_model(data_shape, sequence_length, train_data, val_data):
 
 
 def eval_model(model, test_data):
+    """
+        Evaluates the trained model on the test data and prints the test loss.
+
+        Parameters:
+        -----------
+        model: keras.models.Sequential
+            The trained LSTM model to evaluate.
+        test_data: numpy.ndarray
+            The test data used for evaluation.
+    """
     #train_loss = model.history['loss'][-1]
     #val_loss = model.history['val_loss'][-1]
     test_loss = model.evaluate(test_data)
@@ -68,6 +152,13 @@ def eval_model(model, test_data):
 
 
 def main():
+    """
+       Main function that executes the routine prediction workflow.
+
+       It preprocesses the data, splits it into training, validation, and test sets.
+       Then, it performs Bayesian optimization to search for the best LSTM model hyperparameters.
+       Finally, it evaluates the best model on the test data and prints the results.
+    """
     warnings.filterwarnings('ignore', category=DeprecationWarning)
 
     data = pd.read_csv(PATH_USER_DATA, header=None)

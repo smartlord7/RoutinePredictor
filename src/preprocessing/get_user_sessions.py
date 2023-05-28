@@ -1,11 +1,37 @@
+"""
+------------WayAhead: Predicting a person's routine------------
+ University of Coimbra
+ Masters in Intelligent Systems
+ Ubiquitious Systems
+ 1st year, 2nd semester
+ Authors:
+ Alexandre Gameiro Leopoldo, 2019219929, uc2019219929@student.uc.pt
+ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+ Credits to:
+ Carlos Bento
+ Coimbra, 29th May 2023
+ ---------------------------------------------------------------------------
+"""
+
 import os
 import pandas as pd
 from src.db_setup import db_setup
 
 
 """
-Used to get all the sessions from all users, and store them in a file.
-Only adds sessions that we have data for!
+This script retrieves session data for all users from a PostgreSQL database, filters out sessions without location data, and stores the sessions in a file. It also prints the 5 users with the most sessions.
+
+Usage:
+- Update the database connection configurations in the script according to your PostgreSQL database.
+- Set the value of `PATH_DATA` to the desired path to store the session file.
+- Ensure that the necessary dependencies are installed (e.g., psycopg2, pandas).
+- Run the script to retrieve session data and generate the session file.
+
+Output:
+- A file containing user session data, where each line represents a user and their corresponding session IDs.
+- The script also prints the 5 users with the most sessions.
+
 """
 
 PATH_DATA = '../data/'

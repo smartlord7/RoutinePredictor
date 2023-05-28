@@ -1,3 +1,19 @@
+"""
+------------WayAhead: Predicting a person's routine------------
+ University of Coimbra
+ Masters in Intelligent Systems
+ Ubiquitious Systems
+ 1st year, 2nd semester
+ Authors:
+ Alexandre Gameiro Leopoldo, 2019219929, uc2019219929@student.uc.pt
+ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+ Credits to:
+ Carlos Bento
+ Coimbra, 29th May 2023
+ ---------------------------------------------------------------------------
+"""
+
 # import sqlalchemy as db
 import json
 
@@ -5,6 +21,22 @@ import pandas as pd
 import psycopg2
 
 #from src.db_setup import db_setup
+
+
+"""
+This script retrieves session data for a specific user from a PostgreSQL database, filters out sessions without location data, and plots the start and end points of the sessions on a QGIS map. It uses the `session` table to get the session information and the `processed_session` table to retrieve the start and end points.
+
+Usage:
+- Update the database connection configurations in the script according to your PostgreSQL database.
+- Set the value of `user_id` to the desired user ID.
+- Set the maximum number of sessions to plot using `max_sessions`.
+- Ensure that the necessary dependencies are installed (e.g., psycopg2, pandas).
+- Run the script to plot the session start and end points on a QGIS map.
+
+Output:
+- Plots the start and end points of user sessions on a QGIS map, up to the specified maximum number of sessions.
+
+"""
 
 """
 Este foi o ultimo que tive a modificar, basicamente é usar outras tabelas para ir buscar o ponto inicial e final das sessoes

@@ -1,10 +1,45 @@
+"""
+------------WayAhead: Predicting a person's routine------------
+ University of Coimbra
+ Masters in Intelligent Systems
+ Ubiquitious Systems
+ 1st year, 2nd semester
+ Authors:
+ Alexandre Gameiro Leopoldo, 2019219929, uc2019219929@student.uc.pt
+ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+ Credits to:
+ Carlos Bento
+ Coimbra, 29th May 2023
+ ---------------------------------------------------------------------------
+"""
+
 import joblib
 import os.path
 import pandas as pd
 import numpy as np
 from keras.models import load_model
 
+
+
 def predict_next_point(model, scaler, past_points):
+    """
+       Predicts the next point using the given LSTM model and scaler.
+
+       Parameters:
+       -----------
+       model: keras.models.Model
+           The trained LSTM model used for prediction.
+       scaler: sklearn.preprocessing.MinMaxScaler
+           The scaler object used to normalize the input data.
+       past_points: numpy.ndarray
+           The past points used as input for prediction.
+
+       Returns:
+       --------
+       numpy.ndarray
+           The predicted next point.
+    """
     # Normalize
     past_points_norm = scaler.transform(past_points)
     # Reshape for LSTM
