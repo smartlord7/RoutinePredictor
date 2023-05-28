@@ -1,10 +1,34 @@
+"""
+------------WayAhead: Predicting a person's routine------------
+ University of Coimbra
+ Masters in Intelligent Systems
+ Ubiquitious Systems
+ 1st year, 2nd semester
+ Authors:
+ Alexandre Gameiro Leopoldo, 2019219929, uc2019219929@student.uc.pt
+ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+ Credits to:
+ Carlos Bento
+ Coimbra, 29th May 2023
+ ---------------------------------------------------------------------------
+"""
+
 # import sqlalchemy as db
 import pandas as pd
 import psycopg2
 
 """
-This script uses a user_id and plots his sessions on the QGIS map.
-Este ficheiro usa o gslocation que tem a raw data (mesmo assim faltam algumas sessoes). //depois tira isto sff xD
+This script retrieves session data for a specific user from a PostgreSQL database and plots the sessions on a map using the QGIS Python API.
+
+Usage:
+- Update the database connection configurations in the script according to your PostgreSQL database.
+- Set the value of `user_id` to the ID of the user for whom you want to plot the sessions.
+- Ensure that the script is executed within the QGIS environment.
+
+Output:
+- Visualization of the user's sessions on a map in the QGIS interface.
+
 """
 
 

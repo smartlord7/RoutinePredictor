@@ -1,4 +1,35 @@
+"""
+------------WayAhead: Predicting a person's routine------------
+ University of Coimbra
+ Masters in Intelligent Systems
+ Ubiquitious Systems
+ 1st year, 2nd semester
+ Authors:
+ Alexandre Gameiro Leopoldo, 2019219929, uc2019219929@student.uc.pt
+ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+ Credits to:
+ Carlos Bento
+ Coimbra, 29th May 2023
+ ---------------------------------------------------------------------------
+"""
+
 import pandas as pd
+
+"""
+This script reads a user's sequence data from a text file and creates QGIS vector layers to display the movement between consecutive points in the sequence. Each vector layer represents a line connecting two points, with an arrow symbol indicating the direction of movement.
+
+The script assumes the availability of QGIS and its Python API.
+
+Usage:
+- Set the value of `USER_ID` to the user's ID.
+- Set the value of `PATH_DATA` to the directory path containing the user's sequence data.
+- Ensure that the QGIS interpreter is configured correctly to execute the script.
+
+Output:
+- QGIS vector layers representing the movement between consecutive points in the user's sequence.
+
+"""
 
 USER_ID = 353
 PATH_DATA = 'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\data\\user_sequences\\' # Complete path because of QGis Interpreter
