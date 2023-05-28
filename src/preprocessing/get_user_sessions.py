@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from src.db_setup import db_setup
 
 
 """
@@ -8,14 +7,18 @@ Used to get all the sessions from all users, and store them in a file.
 Only adds sessions that we have data for!
 """
 
-PATH_DATA = '../data/'
+PATH_DATA = '../../data/'
 EXTENSION_TEXT = '.txt'
 PATH_USER_SESSIONS = PATH_DATA + 'user_sessions_number' + EXTENSION_TEXT
 
-# Database connection configurations
-db_config, db_uri, conn = db_setup()
+POSTGRES_ADDRESS = 'localhost'
+POSTGRES_PORT = '5432'
+POSTGRES_USERNAME = 'leopoldo'
+POSTGRES_PASSWORD = '1234'
+POSTGRES_DBNAME = 'suscity'
 
-cursor = conn.cursor()
+# Database connection configurations
+db_uri = f'postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_ADDRESS}:{POSTGRES_PORT}/{POSTGRES_DBNAME}'
 
 sessions = pd.read_sql_query('SELECT * FROM session', db_uri)
 
@@ -90,8 +93,8 @@ for user, s in users.items():
 """
 
 # Get user with most amount of sessions
-ordered_users = sorted(users, key=lambda x: len(users.get(x)), reverse=True)[0:5]
+ordered_users = sorted(users, key=lambda x: len(users.get(x)), reverse=True)[0:10]
 
-print('The 5 users with the most sessions are: ')
+print('The 10 users with the most sessions are: ')
 for user in ordered_users:
     print(f'User {user} with {len(users[user])} sessions.')

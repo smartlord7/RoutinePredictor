@@ -7,3 +7,4 @@ scikit-learn
 keras
 tensorflow
 bayesian-optimization
+hmmlearn

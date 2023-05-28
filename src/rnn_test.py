@@ -78,8 +78,10 @@ def main():
     X = data
     y = data
     scaler = MinMaxScaler()
-    X = scaler.fit_transform(X)
-    y = scaler.fit_transform(y)
+
+    scaler.fit(X)
+    X = scaler.transform(X)
+    y = scaler.transform(y)
 
     X_dev, X_test, y_dev, y_test = train_test_split(X, y, shuffle=False, stratify=None, test_size=FRACTION_TEST)
     X_train, X_val, y_train, y_val = train_test_split(X_dev, y_dev, shuffle=False, stratify=None, test_size=FRACTION_VALIDATION)

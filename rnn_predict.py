@@ -26,14 +26,18 @@ PATH_USER_DATA = PATH_DATA + f'user_{USER_ID}_sequence' + EXTENSION_TEXT
 SCALER_PATH = LSTM_DATA + 'MinMaxScaler'
 MODEL_PATH = LSTM_DATA + 'lstm_model_1.h5'
 
+test_model_path = f'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\models\\test\\model.h5'
+test_scaler_path = f'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\models\\test\\scaler'
 predict_file_path = f'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\data\\user_predictions\\{USER_ID}_pred.txt'
 true_file_path = f'C:\\Users\\alexl\\Desktop\\Mestrado\\Cadeiras 1 ano\\Semestre 2\\SU\\Project\\data\\user_predictions\\{USER_ID}_true.txt'
 
 # Load LSTM model and Scaler
-model = load_model(MODEL_PATH)
-scaler = joblib.load(SCALER_PATH)
+#model = load_model(MODEL_PATH)
+#scaler = joblib.load(SCALER_PATH)
+model = load_model(test_model_path)
+scaler = joblib.load(test_scaler_path)
 
-sequence_length = 2
+sequence_length = 3
 tmp_index = 3
 
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']

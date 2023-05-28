@@ -8,7 +8,7 @@ PATH_USER_DATA = PATH_DATA + f'user_{USER_ID}_sequence' + EXTENSION_TEXT
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 file = open(PATH_USER_DATA, 'r')
 
-max_sessions = 10000
+max_sessions = 100
 counter = 0
 
 prev = None
