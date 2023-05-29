@@ -44,11 +44,6 @@ Uso o user 464 pq é o que tem mais sessoes
 Isto nao está acabado!!!!!!!!!!
 """
 
-PATH_DATA = '../data/'
-EXTENSION_TEXT = '.txt'
-PATH_USER_SESSIONS = PATH_DATA + 'user_sessions_number' + EXTENSION_TEXT
-
-
 # Database connection configurations
 #db_config, db_uri, conn = db_setup()
 
@@ -73,7 +68,7 @@ session_file_name = 'user_sessions_number.txt'
 
 
 
-user_id = 468  # Change this to whatever user, user with most sessions is 464
+user_id = 353  # Change this to whatever user, user with most sessions is 464
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 # Aqui venho buscar ao ficheiro/tabela sessions, e mais á frente ao processed_sessions,
@@ -84,7 +79,7 @@ sessions = pd.read_sql_query(f'SELECT * FROM session WHERE user_id = {user_id} O
 # Unique sessions this user has
 user_sessions = list(sessions['session_id'])
 
-max_sessions = 15
+max_sessions = 50
 counter = 0
 
 for index, session_id in enumerate(user_sessions):

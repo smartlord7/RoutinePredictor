@@ -42,12 +42,15 @@ def predict_next_point(model, scaler, past_points):
     """
     # Normalize
     past_points_norm = scaler.transform(past_points)
+    #past_points_norm = past_points
+
     # Reshape for LSTM
     past_points_norm = np.expand_dims(past_points_norm, 0)
 
     next_point_norm = model.predict(past_points_norm, verbose=0)
 
     next_point = scaler.inverse_transform(next_point_norm)
+    #next_point = next_point_norm
 
     return next_point
 
@@ -105,7 +108,7 @@ for i in range(sequence_length, len(lst)):
 
     pred = predict_next_point(model, scaler, past_points)[0]
     true = lst[i]
-    predict_file.write(f'{pred[0]},{pred[1]}\n')
+    predict_file.write(f'{round(pred[0], 7)},{round(pred[1], 7)}\n')
     true_file.write(f'{true[0]},{true[1]}\n')
 
 predict_file.close()
