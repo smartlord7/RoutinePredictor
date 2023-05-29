@@ -13,12 +13,13 @@
  Coimbra, 29th May 2023
  ---------------------------------------------------------------------------
 """
-
 import pickle
 import warnings
 
+import joblib
 import numpy as np
 import pandas as pd
+from hyperopt import Trials, fmin, tpe, hp
 from keras.callbacks import EarlyStopping
 from keras.models import load_model
 from sklearn.model_selection import train_test_split
@@ -27,13 +28,13 @@ from keras.preprocessing.sequence import TimeseriesGenerator
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Bidirectional
 from keras.optimizers import Adam
-from bayes_opt import BayesianOptimization
+from bayes_opt import BayesianOptimization, UtilityFunction
 
 USER_ID = 353
 PATH_DATA = '../data/user_sequences/'
 EXTENSION_TEXT = '.txt'
 PATH_USER_DATA = PATH_DATA + f'user_{USER_ID}_sequence' + EXTENSION_TEXT
-SEQUENCE_LENGTH = 2
+SEQUENCE_LENGTH = 3
 COUNTER = 1
 FRACTION_TEST = 0.2
 FRACTION_VALIDATION = 0.2
@@ -70,7 +71,7 @@ def build_lstm_model(data_shape, sequence_length, learning_rate, num_layers, num
         else:
             lstm_model.add(LSTM(num_nodes, return_sequences=True))
 
-    lstm_model.add(Dense(data_shape[1]))
+    lstm_model.add(Dense(2))
     opt = Adam(learning_rate=learning_rate)
     lstm_model.compile(optimizer=opt, loss='mse')
 
@@ -94,22 +95,18 @@ def train_model(data_shape, sequence_length, train_data, val_data):
 
        Returns:
        --------
-       function
-           A function that trains the LSTM model with different hyperparameters and returns the negative validation loss.
-           The function takes the learning_rate, num_layers, and num_nodes as inputs.
+       float
+           The negative validation loss achieved by the trained model.
     """
-    def train_model_(learning_rate, num_layers, num_nodes):
+
+    def train_model_(params):
         """
             Trains the LSTM model with the specified hyperparameters and returns the negative validation loss.
 
             Parameters:
             -----------
-            learning_rate: float
-                The learning rate for the optimizer.
-            num_layers: int
-                The number of LSTM layers in the model.
-            num_nodes: int
-                The number of nodes in each LSTM layer.
+            params: dict
+                A dictionary containing the hyperparameters.
 
             Returns:
             --------
@@ -117,9 +114,13 @@ def train_model(data_shape, sequence_length, train_data, val_data):
                 The negative validation loss achieved by the trained model.
         """
         global COUNTER
-        lstm_model = build_lstm_model(data_shape, sequence_length, learning_rate, int(num_layers), int(num_nodes))
+        learning_rate = params['learning_rate']
+        num_layers = int(params['num_layers'])
+        num_nodes = int(params['num_nodes'])
+
+        lstm_model = build_lstm_model(data_shape, sequence_length, learning_rate, num_layers, num_nodes)
         early_stop = EarlyStopping(monitor='val_loss', patience=3)
-        history = lstm_model.fit(train_data, epochs=5, verbose=1, validation_data=val_data, callbacks=[early_stop])
+        history = lstm_model.fit(train_data, epochs=200, verbose=1, validation_data=val_data, callbacks=[early_stop])
         val_loss = np.min(history.history['val_loss'])
 
         filename = 'lstm_model_' + str(COUNTER) + '.h5'
@@ -142,13 +143,12 @@ def eval_model(model, test_data):
         test_data: numpy.ndarray
             The test data used for evaluation.
     """
-    #train_loss = model.history['loss'][-1]
-    #val_loss = model.history['val_loss'][-1]
+    # train_loss = model.history['loss'][-1]
+    # val_loss = model.history['val_loss'][-1]
     test_loss = model.evaluate(test_data)
-    #print('Train loss: ', train_loss)
-    #print('Validation loss: ', val_loss)
+    # print('Train loss: ', train_loss)
+    # print('Validation loss: ', val_loss)
     print('Test loss: ', test_loss)
-
 
 
 def main():
@@ -156,7 +156,7 @@ def main():
        Main function that executes the routine prediction workflow.
 
        It preprocesses the data, splits it into training, validation, and test sets.
-       Then, it performs Bayesian optimization to search for the best LSTM model hyperparameters.
+       Then, it performs Hyperopt optimization to search for the best LSTM model hyperparameters.
        Finally, it evaluates the best model on the test data and prints the results.
     """
     warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -167,34 +167,41 @@ def main():
     print(data.shape)
 
     X = data
-    y = data
+    y = data.copy()
     scaler = MinMaxScaler()
 
     scaler.fit(X)
     X = scaler.transform(X)
     y = scaler.transform(y)
 
+    scaler_filename = f'scaler_{USER_ID}.pkl'
+    with open(scaler_filename, 'wb') as file:
+        joblib.dump(scaler, file)
+
     X_dev, X_test, y_dev, y_test = train_test_split(X, y, shuffle=False, stratify=None, test_size=FRACTION_TEST)
-    X_train, X_val, y_train, y_val = train_test_split(X_dev, y_dev, shuffle=False, stratify=None, test_size=FRACTION_VALIDATION)
+    X_train, X_val, y_train, y_val = train_test_split(X_dev, y_dev, shuffle=False, stratify=None,
+                                                      test_size=FRACTION_VALIDATION)
 
-    train_data = TimeseriesGenerator(X_train, y_train, length=SEQUENCE_LENGTH, batch_size=8) # reduce batch size
-    val_data = TimeseriesGenerator(X_val, y_val, length=SEQUENCE_LENGTH, batch_size=8)
-    test_data = TimeseriesGenerator(X_test, y_test, length=SEQUENCE_LENGTH, batch_size=8)
+    train_data = TimeseriesGenerator(X_train, y_train, length=SEQUENCE_LENGTH, batch_size=4)
+    val_data = TimeseriesGenerator(X_val, y_val, length=SEQUENCE_LENGTH, batch_size=4)
+    test_data = TimeseriesGenerator(X_test, y_test, length=SEQUENCE_LENGTH, batch_size=4)
 
-    pbounds = {'learning_rate': (1e-4, 3e-1),
-               'num_layers': (2, 8),
-               'num_nodes': (32, 128)}
+    space = {
+        'learning_rate': hp.uniform('learning_rate', 1e-4, 3e-1),
+        'num_layers': hp.quniform('num_layers', 2, 8, 1),
+        'num_nodes': hp.quniform('num_nodes', 32, 128, 1)
+    }
 
     opt_callback = train_model(data_shape, SEQUENCE_LENGTH, train_data, val_data)
-    lstm_bo = BayesianOptimization(f=opt_callback,  pbounds=pbounds, verbose=2, random_state=42)
-    lstm_bo.maximize(init_points=0, n_iter=1, acq='ei')
-    best_model_index = max(range(len(lstm_bo.res)), key=lambda i: lstm_bo.res[i]['target']) + 1
+    trials = Trials()
+    best = fmin(fn=opt_callback, space=space, algo=tpe.suggest, max_evals=100, trials=trials)
+
+    best_model_index = np.argmin(trials.losses()) + 1
     best_model_filename = 'lstm_model_' + str(best_model_index) + '.h5'
     best_lstm_model = load_model(best_model_filename)
 
-    print('Best LSTM params:')
-    best_params = lstm_bo.max['params']
-    print(best_params)
+    print('Best LSTM params (%s):' % best_lstm_model)
+    print(best)
 
     best_lstm_model.summary()
     eval_model(best_lstm_model, test_data)
